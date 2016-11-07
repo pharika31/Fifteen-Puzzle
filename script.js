@@ -3,33 +3,42 @@ var puzzlePieces = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12
 var originalPuzzlePieces = puzzlePieces;
 var emptySquare = 0, totalRows = 4, totalCols = 4, nRow, nCol;
 var nSquare = 4;
-var timer = 0, iTimer, numberOfSteps = 0;
 
-function init()
-{
-    printTable(puzzlePieces);
-}
 
 function shuffleAndCreatePuzzle()
 {
-    document.getElementById("pButton").innerHTML= "Restart";
-    printTable(puzzlePieces.sort(function(a, b){return 0.5 - Math.random()}));
-    var solvableEmptyPos = [0,2,5,7,8,10,13,15], solvable = false;
-    for(var i = 0; i<solvableEmptyPos.length; i++)
+    printTable(puzzlePieces.sort(function(a, b){return 0.5 - Math.random()}));   
+}
+
+
+//function for initial display without shuffleAndCreatePuzzle
+function initialPuzzle()
+{
+	var table = document.getElementById("pTable");
+    table.innerHTML = "";
+
+    var row, cPiece, k = 0;
+
+    for(var i = 0; i < nSquare; i++)
     {
-        if(emptySquare == solvableEmptyPos[i])
+        row = table.insertRow(i);
+        for(var j = 0; j < nSquare; j++)
         {
-            solvable = true;
-            break;
+            cPiece = row.insertCell(j);
+            cPiece.tags=k;
+            cPiece.id="c"+k; 
+			cPiece.class="c"+k;
+			if(k==15){
+				cPiece.id="emptySquare"; 
+			}
+            cPiece.innerHTML = "<td>" + puzzlePieces[k] + "</td>";
+           if(k<=15){
+		   k++;
+		   
+		   }
+		   
         }
     }
-
-    if(!solvable) {shuffleAndCreatePuzzle(); console.log("Not Solvable");}
-    
-    timer = 0; numberOfSteps = 0;
-    clearInterval(iTimer);
-    document.getElementById("pSteps").innerHTML = "";    
-    iTimer = setInterval(startTimer, 1000);
 }
 
 function printTable(thisPuzzleOrder)
@@ -46,9 +55,14 @@ function printTable(thisPuzzleOrder)
         {
             cPiece = row.insertCell(j);
             cPiece.tags=k;
-            cPiece.id="c"+k; 
+            cPiece.id="c"+thisPuzzleOrder[k]; 
+			
             cPiece.innerHTML = "<td>" + thisPuzzleOrder[k] + "</td>";
-            cPiece.onclick = function (){cellClicked(this);};
+            cPiece.onclick = function (){getRowCol(this);};
+			//added by Harika
+			cPiece.onmouseover = function() {highlightIfValid(this);};
+			cPiece.onmouseout = function() {removeHighlight(this);};
+			//end
             if(thisPuzzleOrder[k] == "")
             {
                 cPiece.id="emptySquare";
@@ -59,7 +73,37 @@ function printTable(thisPuzzleOrder)
     }
 }
 
-function cellClicked(cell)
+//function to highlight cell on hover if its movable -Harika
+
+function highlightIfValid(cell) {
+	nRow = parseInt(cell.tags / totalRows);
+    nCol = cell.tags % totalCols;
+    emptyRow = parseInt(emptySquare/totalRows);
+    emptyCol = emptySquare % totalCols;
+
+    console.log("Cell Col :" + nCol +"\nEmptyCol : "+ emptyCol);
+
+    if(emptyRow == nRow)
+    {
+       //highlight on hover
+	   cell.className += " highlightTile";
+	 
+    }
+	if(emptyCol == nCol){
+		cell.className += " highlightTile";
+	}
+
+	}
+//remove highlight
+function removeHighlight(cell) {
+				var className =cell.className;
+				className = className.replace(" highlightTile","");
+				cell.className = className;
+}
+			
+//end -Harika
+
+function getRowCol(cell)
 {
     nRow = parseInt(cell.tags / totalRows);
     nCol = cell.tags % totalCols;
@@ -70,13 +114,11 @@ function cellClicked(cell)
 
     if(cell.tags == emptySquare)
     {
-        console.log("This step is not to be counted");
         alert("You can't move the empty square");
     }
 
     else if(emptyRow == nRow)
     {
-        numberOfSteps++;        
         console.log("Movable, Same Row");
         if(nCol < emptyCol)
         {
@@ -90,7 +132,6 @@ function cellClicked(cell)
 
     else if(emptyCol == nCol)
     {
-        numberOfSteps++;    
         console.log("Movable, Same Cols");
         if(nRow < emptyRow)
         {
@@ -101,26 +142,7 @@ function cellClicked(cell)
             slideColUp(cell, nRow, emptyRow);
         }
     }
-    if(puzzlePieces[puzzlePieces.length-1] == "")
-    {
-        var puzzleSolved = true;
-        for(var i = 0, j = 1 ; i < puzzlePieces.length - 1; i++, j++)
-        {
-            if(j != puzzlePieces[i])
-            {
-                puzzlePieces = false;
-                break;
-            }                    
-        }
-
-        if(puzzleSolved)
-        {
-            alert("You solved the fuckin puzzle.");
-        }    
-    }
-    
-    document.getElementById("pSteps").innerHTML = numberOfSteps + " steps taken.";
-}  
+}
 
 function slideRowLeft(cell, nCol, emptyCol)
 {
@@ -175,15 +197,27 @@ function slideColDown(cell, nRow, emptyRow)
     printTable(puzzlePieces);
 }
 
-function startTimer()
-{
-    timer++;
-    if(timer <= 60)
-    {
-        document.getElementById("pTimer").innerHTML = "Time Elapsed = " + timer + " seconds.";         
-    }
-    else
-    {
-        document.getElementById("pTimer").innerHTML = "Time Elapsed = " + parseInt(timer/60) + " minute " + timer%60 + " second.";                 
-    }
+//function to change background of tiles
+function changeBg(){
+				var option = document.getElementById("bg");
+				var val = option.options[option.selectedIndex].value;
+				var body = document.getElementsByTagName('body')[0];
+				if(val==0){
+					changeStyleSheet("style0.css") ;
+				} 
+				else if(val==1){
+					changeStyleSheet("style1.css") ;
+				}
+				else if(val==2){
+					changeStyleSheet("style2.css") ;
+				}
+				else if(val==3){
+					changeStyleSheet("style3.css") ;
+				} 
+			
+			}
+			
+//function to change stylesheet
+function changeStyleSheet(sheet) {
+    document.getElementById("style").setAttribute("href", sheet);  
 }
