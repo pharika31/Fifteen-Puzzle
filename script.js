@@ -4,10 +4,26 @@ var originalPuzzlePieces = puzzlePieces;
 var emptySquare = 0, totalRows = 4, totalCols = 4, nRow, nCol;
 var nSquare = 4;
 
+function init()
+{
+    printTable(puzzlePieces);
+}
 
 function shuffleAndCreatePuzzle()
 {
-    printTable(puzzlePieces.sort(function(a, b){return 0.5 - Math.random()}));   
+    document.getElementById("pButton").innerHTML= "Restart";
+    printTable(puzzlePieces.sort(function(a, b){return 0.5 - Math.random()}));
+    var solvableEmptyPos = [0,2,5,7,8,10,13,15], solvable = false;
+    for(var i = 0; i<solvableEmptyPos.length; i++)
+    {
+        if(emptySquare == solvableEmptyPos[i])
+        {
+            solvable = true;
+            break;
+        }
+    }
+
+    if(!solvable) {shuffleAndCreatePuzzle(); console.log("Not Solvable");}   
 }
 
 function printTable(thisPuzzleOrder)
