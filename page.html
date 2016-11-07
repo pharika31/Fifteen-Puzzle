@@ -1,5 +1,5 @@
 <html>
-    <head><title>Fifteen Puzzle</title>
+    <head><title>Game of Fifteen</title>
     <script src="script.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
 
@@ -8,12 +8,13 @@
     <body onload="init()">
         <div align="center" >
             <h2>15 Puzzle</h2><br/><br/>
-            <table id="pTable" cellspacing="4px" border=1>
+            <table id="pTable" cellspacing="4px" cellpadding="16px" border="1" >
             </table>
-            <br/><br/>
+            <br/>
             <button onclick="shuffleAndCreatePuzzle()" id="pButton">Play</button>
+            <br/>
+            <p id="pTimer"></p>
+            <p id="pSteps"></p>
         </div>
-
-
     </body>
 </html>

@@ -3,6 +3,7 @@ var puzzlePieces = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12
 var originalPuzzlePieces = puzzlePieces;
 var emptySquare = 0, totalRows = 4, totalCols = 4, nRow, nCol;
 var nSquare = 4;
+var timer = 0, iTimer, numberOfSteps = 0;
 
 function init()
 {
@@ -23,7 +24,12 @@ function shuffleAndCreatePuzzle()
         }
     }
 
-    if(!solvable) {shuffleAndCreatePuzzle(); console.log("Not Solvable");}   
+    if(!solvable) {shuffleAndCreatePuzzle(); console.log("Not Solvable");}
+    
+    timer = 0; numberOfSteps = 0;
+    clearInterval(iTimer);
+    document.getElementById("pSteps").innerHTML = "";    
+    iTimer = setInterval(startTimer, 1000);
 }
 
 function printTable(thisPuzzleOrder)
@@ -42,7 +48,7 @@ function printTable(thisPuzzleOrder)
             cPiece.tags=k;
             cPiece.id="c"+k; 
             cPiece.innerHTML = "<td>" + thisPuzzleOrder[k] + "</td>";
-            cPiece.onclick = function (){getRowCol(this);};
+            cPiece.onclick = function (){cellClicked(this);};
             if(thisPuzzleOrder[k] == "")
             {
                 cPiece.id="emptySquare";
@@ -53,7 +59,7 @@ function printTable(thisPuzzleOrder)
     }
 }
 
-function getRowCol(cell)
+function cellClicked(cell)
 {
     nRow = parseInt(cell.tags / totalRows);
     nCol = cell.tags % totalCols;
@@ -64,11 +70,13 @@ function getRowCol(cell)
 
     if(cell.tags == emptySquare)
     {
+        console.log("This step is not to be counted");
         alert("You can't move the empty square");
     }
 
     else if(emptyRow == nRow)
     {
+        numberOfSteps++;        
         console.log("Movable, Same Row");
         if(nCol < emptyCol)
         {
@@ -82,6 +90,7 @@ function getRowCol(cell)
 
     else if(emptyCol == nCol)
     {
+        numberOfSteps++;    
         console.log("Movable, Same Cols");
         if(nRow < emptyRow)
         {
@@ -92,7 +101,26 @@ function getRowCol(cell)
             slideColUp(cell, nRow, emptyRow);
         }
     }
-}
+    if(puzzlePieces[puzzlePieces.length-1] == "")
+    {
+        var puzzleSolved = true;
+        for(var i = 0, j = 1 ; i < puzzlePieces.length - 1; i++, j++)
+        {
+            if(j != puzzlePieces[i])
+            {
+                puzzlePieces = false;
+                break;
+            }                    
+        }
+
+        if(puzzleSolved)
+        {
+            alert("You solved the fuckin puzzle.");
+        }    
+    }
+    
+    document.getElementById("pSteps").innerHTML = numberOfSteps + " steps taken.";
+}  
 
 function slideRowLeft(cell, nCol, emptyCol)
 {
@@ -145,4 +173,17 @@ function slideColDown(cell, nRow, emptyRow)
         emptySquare -= nSquare;
     }
     printTable(puzzlePieces);
+}
+
+function startTimer()
+{
+    timer++;
+    if(timer <= 60)
+    {
+        document.getElementById("pTimer").innerHTML = "Time Elapsed = " + timer + " seconds.";         
+    }
+    else
+    {
+        document.getElementById("pTimer").innerHTML = "Time Elapsed = " + parseInt(timer/60) + " minute " + timer%60 + " second.";                 
+    }
 }
